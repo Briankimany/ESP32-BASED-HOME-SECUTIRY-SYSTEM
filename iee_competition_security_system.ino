@@ -1,219 +1,228 @@
-#include <Wire.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
-#include <MQUnifiedsensor.h>
+#include "sensors.h"
+#include "rfid.h"
+#include "mykeypad.h"
 
-// =====================================================
-// OLED
-// =====================================================
-#define SCREEN_WIDTH 128
-#define SCREEN_HEIGHT 64
-
-Adafruit_SSD1306 display(
-  SCREEN_WIDTH,
-  SCREEN_HEIGHT,
-  &Wire,
-  -1
-);
-
-#define BATTERY_PIN   34
-#define SWITCH_PIN    32
-#define LATCH_PIN     28
-#define MQ135_PIN     35
-#define BUZZER_PIN    18
-
-// =====================================================
-// ESP32 ADC
-// =====================================================
-#define VOLTAGE_RESOLUTION 3.3
-#define ADC_RESOLUTION     4095.0
-
-const float SCALE = 2.0;
-const float MIN_BATTERY = 4.5;
-
-// =====================================================
-// INTERVALS
-// =====================================================
-const unsigned long batteryInterval = 1000;
-const unsigned long mq135Interval   = 2000;
-const unsigned long displayInterval = 500;
-
+// Timers
 unsigned long lastBatteryCheck = 0;
 unsigned long lastMQ135Check   = 0;
 unsigned long lastDisplayUpdate = 0;
+unsigned long previousBuzzerMillis = 0;
 
-// =====================================================
-// GLOBAL VALUES
-// =====================================================
+// Values
 float batteryVoltage = 0;
-float switchVoltage  = 0;
-float ppm            = 0;
+float ppm = 0;
+bool latchState = false;
 
-bool switchPressed = false;
-bool batteryLow    = false;
-bool latchState    = false;
+// PIR
+bool buzzerState = false;
+bool motionDetected = false;
+unsigned long lastMotionTime = 0;
+bool systemReady = false;
+unsigned long startTime = 0;
 
-// =====================================================
-// MQ135
-// =====================================================
-#define Board               "ESP32"
-#define Type                "MQ-135"
-#define Voltage_Resolution  3.3
-#define ADC_Bit_Resolution  12
-
-MQUnifiedsensor MQ135(
-  Board,
-  Voltage_Resolution,
-  ADC_Bit_Resolution,
-  MQ135_PIN,
-  Type
-);
+// Security system
+String enteredPassword = "";
+bool doorOpen = false;
+unsigned long doorOpenTime = 0;
+bool alarmArmed = true;
 
 void setup() {
-
   Serial.begin(115200);
 
   pinMode(LATCH_PIN, OUTPUT);
+  pinMode(PIR_PIN, INPUT);
+  pinMode(LED_PIN, OUTPUT);
+  pinMode(BUZZER_PIN, OUTPUT);
+
   digitalWrite(LATCH_PIN, LOW);
-  pinMode(BUZZER_PIN ,OUTPUT);
-  digitalWrite(BUZZER_PIN , LOW);
+  digitalWrite(LED_PIN, LOW);
+  digitalWrite(BUZZER_PIN, LOW);
 
-  // =====================================================
-  // OLED INIT
-  // =====================================================
-
-  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
-
-    Serial.println("OLED FAILED");
-
-    while (true);
-  }
-
-  display.clearDisplay();
-  display.setTextSize(1);
-  display.setTextColor(WHITE);
-
+  initOLED();
   display.setCursor(0, 0);
-  display.println("System Starting...");
+  display.println("SYSTEM STARTING...");
   display.display();
 
+  initMQ135();
+  initRFID();
+  initKeypad();
 
-  MQ135.setRegressionMethod(1);
-
-  MQ135.setA(110.47);
-  MQ135.setB(-2.862);
-
-  MQ135.init();
-
-  MQ135.setR0(10.22);
-
-  Serial.println("System Ready");
+  startTime = millis();
+  Serial.println("Security System Initializing...");
+  Serial.print("Calibrating for ");
+  Serial.print(CALIBRATION_TIME / 1000);
+  Serial.println(" seconds...");
 }
 
 void loop() {
-
   unsigned long now = millis();
 
-  // =====================================================
-  // BATTERY TASK
-  // =====================================================
+  // PIR calibration
+  if (!systemReady && (now - startTime >= CALIBRATION_TIME)) {
+    systemReady = true;
+    Serial.println("PIR READY");
+  }
 
+  // Battery task
   if (now - lastBatteryCheck >= batteryInterval) {
-
     lastBatteryCheck = now;
 
-    batteryVoltage =
-      (analogRead(BATTERY_PIN) *
-       VOLTAGE_RESOLUTION /
-       ADC_RESOLUTION) * SCALE;
+    batteryVoltage = readBattery();
+    bool switchPressed = isSwitchPressed();
+    bool batteryLow = isBatteryLow(batteryVoltage);
+    
+    // Only close latch if battery is good AND (switch pressed OR door is opened by RFID/keypad)
+    if (!batteryLow) {
+      if (switchPressed || doorOpen) {
+        latchState = true;
+      }
+    } else {
+      latchState = false;
+    }
 
-    switchVoltage =
-      (analogRead(SWITCH_PIN) *
-       VOLTAGE_RESOLUTION /
-       ADC_RESOLUTION) * SCALE;
-
-    // to be fixed latter.
-    switchPressed = 5 > 3.0;
-
-    batteryLow = batteryVoltage <= MIN_BATTERY;
-
-    latchState = (!batteryLow && switchPressed);
-
-    digitalWrite(
-      LATCH_PIN,
-      latchState ? HIGH : LOW
-    );
+    digitalWrite(LATCH_PIN, latchState ? HIGH : LOW);
 
     Serial.print("Battery: ");
     Serial.print(batteryVoltage);
-
     Serial.print(" V | MQ135: ");
     Serial.print(ppm);
-
-    Serial.print(" PPM | Latch: ");
-    Serial.println(
-      latchState ? "ON" : "OFF"
-    );
+    Serial.print(" PPM | Motion: ");
+    Serial.print(motionDetected ? "YES" : "NO");
+    Serial.print(" | Latch: ");
+    Serial.println(latchState ? "ON" : "OFF");
   }
 
-  // =====================================================
-  // MQ135 TASK
-  // =====================================================
-
+  // MQ135 task
   if (now - lastMQ135Check >= mq135Interval) {
-
     lastMQ135Check = now;
-
     MQ135.update();
-
     ppm = MQ135.readSensor();
-    if (ppm > 400) {
-      digitalWrite(BUZZER_PIN ,HIGH);
-    } else{
-      digitalWrite(BUZZER_PIN ,LOW) ;
-
-    }
-
   }
 
-  // =====================================================
-  // OLED TASK
-  // =====================================================
+  // RFID task
+  if (checkCardPresent()) {
+    String cardUID = getCardUID();
+    Serial.print("Card detected: ");
+    Serial.println(cardUID);
+    
+    if (isCardValid(cardUID)) {
+      Serial.println("Access Granted!");
+      openDoor();
+    } else {
+      Serial.println("Access Denied!");
+    }
+    
+    mfrc522.PICC_HaltA();  // Halt PICC
+    mfrc522.PCD_StopCrypto1();  // Stop encryption on PCD
+  }
 
+  // Keypad task
+  char key = getKeyPress();
+  if (key) {
+    Serial.print("Key pressed: ");
+    Serial.println(key);
+    
+    if (key == '#') {
+      // Check password
+      if (enteredPassword == CORRECT_PASSWORD) {
+        Serial.println("Password Correct! Access Granted!");
+        openDoor();
+      } else {
+        Serial.println("Wrong Password! Access Denied!");
+      }
+      enteredPassword = "";
+    } else if (key == '*') {
+      // Clear password
+      enteredPassword = "";
+      Serial.println("Password cleared");
+    } else {
+      // Add digit to password
+      enteredPassword += key;
+      Serial.print("Current password input: ");
+      Serial.println(enteredPassword);
+    }
+  }
+
+  // PIR security task
+  if (systemReady && alarmArmed) {
+    int pirState = digitalRead(PIR_PIN);
+
+    if (pirState == HIGH) {
+      lastMotionTime = now;
+
+      if (!motionDetected) {
+        motionDetected = true;
+        Serial.println("MOTION DETECTED! ALARM ACTIVE");
+      }
+
+      digitalWrite(LED_PIN, HIGH);
+
+      if (now - previousBuzzerMillis >= buzzerInterval) {
+        previousBuzzerMillis = now;
+        buzzerState = !buzzerState;
+        digitalWrite(BUZZER_PIN, buzzerState);
+      }
+    } else {
+      if (motionDetected && (now - lastMotionTime > 2000)) {
+        motionDetected = false;
+        digitalWrite(LED_PIN, LOW);
+        digitalWrite(BUZZER_PIN, LOW);
+        buzzerState = false;
+        Serial.println("Motion Ended");
+      }
+    }
+  }
+
+  // Door open timer
+  if (doorOpen && (now - doorOpenTime >= DOOR_OPEN_TIME)) {
+    doorOpen = false;
+    Serial.println("Door auto-locked");
+  }
+
+  // OLED task
   if (now - lastDisplayUpdate >= displayInterval) {
-
     lastDisplayUpdate = now;
 
     display.clearDisplay();
-
     display.setCursor(0, 0);
-    display.println("AIR MONITOR");
-
+    display.println("AIR SECURITY SYS");
     display.println("----------------");
-
     display.print("Battery: ");
     display.print(batteryVoltage, 2);
-    display.println(" V");
-
+    display.println("V");
     display.print("MQ135: ");
     display.print(ppm, 1);
     display.println(" PPM");
-
-    display.print("Switch: ");
-    display.println(
-      switchPressed ? "PRESSED" : "OFF"
-    );
-
     display.print("Latch: ");
-    display.println(
-      latchState ? "ON" : "OFF"
-    );
+    display.println(latchState ? "ON" : "OFF");
+    display.print("Motion: ");
+    display.println(motionDetected ? "DETECTED" : "CLEAR");
+    display.print("Door: ");
+    display.println(doorOpen ? "OPEN" : "LOCKED");
 
-    if (batteryLow) {
+    if (!systemReady) {
+      display.println("CALIBRATING...");
+    }
 
+    if (isBatteryLow(batteryVoltage)) {
       display.println("LOW BATTERY");
     }
 
     display.display();
   }
+}
+
+void openDoor() {
+  doorOpen = true;
+  doorOpenTime = millis();
+  alarmArmed = false;  // Disarm alarm when door is opened
+  
+  if (motionDetected) {
+    motionDetected = false;
+    digitalWrite(LED_PIN, LOW);
+    digitalWrite(BUZZER_PIN, LOW);
+    buzzerState = false;
+  }
+  
+  Serial.println("Door opened!");
 }
