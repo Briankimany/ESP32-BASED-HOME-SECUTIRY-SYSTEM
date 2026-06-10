@@ -1,12 +1,12 @@
 #ifndef MYKEYPAD_H
 #define MYKEYPAD_H
 
-#include <Arduino.h>
+
 #include <Keypad.h>
 
 // Keypad configuration
-#define ROWS 4
-#define COLS 4
+#define ROWS 5
+#define COLS 3
 
 // Row and column pins
 #define ROW1_PIN 32
@@ -16,11 +16,9 @@
 #define COL1_PIN 27
 #define COL2_PIN 14
 #define COL3_PIN 12
-#define COL4_PIN 13
 
 extern Keypad keypad;
 
-void initKeypad();
 char getKeyPress();
 
 #endif

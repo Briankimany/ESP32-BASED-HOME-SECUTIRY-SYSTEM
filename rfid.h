@@ -11,7 +11,7 @@
 
 // Known card UIDs
 #define CARD1_UID "43 69 6D 31"
-#define CARD2_UID "43 69 6D 31"
+#define CARD2_UID "A5 B0 2C B6"
 
 extern MFRC522 mfrc522;
 

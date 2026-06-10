@@ -4,21 +4,21 @@
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-#include <MQUnifiedsensor.h>
 #include "config.h"
 
 // OLED object
 extern Adafruit_SSD1306 display;
 
-// MQ135 object
-extern MQUnifiedsensor MQ135;
-
-// Functions
 void initOLED();
-void initMQ135();
-float readBattery();
-float readSwitch();
-bool isSwitchPressed();
-bool isBatteryLow(float voltage);
+
+// Sensors utility functions. 
+bool validRfidCard();
+String getKeypadInputs(String& enteredPassword);
+
+// Functions executed during the off state.
+void displayHomeScreen();
+void turnOffAlarm();
+void displaypromptForCredentials();
+void informFailedAuthorization(bool rfid ,bool password);
 
 #endif

@@ -7,7 +7,6 @@ MFRC522 mfrc522{driver};
 void initRFID() {
   mfrc522.PCD_Init();
   Serial.println("RFID Reader initialized");
-  Serial.println("Scan PICC to see UID...");
 }
 
 bool checkCardPresent() {

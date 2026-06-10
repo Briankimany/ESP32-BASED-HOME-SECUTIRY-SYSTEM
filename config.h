@@ -1,14 +1,9 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-// Pins
-#define BATTERY_PIN   34
-#define SWITCH_PIN    39
-#define LATCH_PIN     28
-#define MQ135_PIN     35
-#define PIR_PIN       13
-#define LED_PIN       4
-#define BUZZER_PIN    12
+
+#define PIR_PIN       36
+#define LED_PIN       13
 
 // OLED
 #define SCREEN_WIDTH   128
@@ -34,6 +29,9 @@ const unsigned long CALIBRATION_TIME = 15000;
 #define Type                "MQ-135"
 #define Voltage_Resolution  3.3
 #define ADC_Bit_Resolution  12
+#define MQ135_A 110.47
+#define MQ135_B -2.842
+#define MQ135_R0 10.22
 
 // Security
 #define CORRECT_PASSWORD "1234"
