@@ -55,7 +55,7 @@ func main() {
 	r.Post("/api/video/frame", handlers.PostVideoFrame)
 	port := ":8080"
 
-	log.Println("Server running on http://localhost" + port)
+	log.Println("Server running on http://air4life.mu.ac.ke" + port)
 
 	err = http.ListenAndServe(port, r)
 	if err != nil {

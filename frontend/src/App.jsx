@@ -24,7 +24,7 @@ function App() {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 3000);
 
-      const response = await fetch("http://localhost:8080/api/sensors", {
+      const response = await fetch("http://air4life.mu.ac.ke/api/sensors", {
         signal: controller.signal,
         method: "GET",
         mode: "cors",
@@ -36,7 +36,7 @@ function App() {
     } catch (err) {
       console.error("Server connection check failed:", err);
       setServerStatus("disconnected");
-      setError(`Cannot connect to backend at http://localhost:8080`);
+      setError(`Cannot connect to backend at http://air4life.mu.ac.ke`);
       setLoading(false);
       return false;
     }
@@ -44,7 +44,7 @@ function App() {
 
   const fetchSensorData = async () => {
     try {
-      const response = await fetch("http://localhost:8080/api/sensors");
+      const response = await fetch("http://air4life.mu.ac.ke/api/sensors");
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -93,7 +93,7 @@ function App() {
         <div className="dashboard">
           <div className="loading-container">
             <div className="loading-spinner"></div>
-            <p>Connecting to backend server at http://localhost:8080...</p>
+            <p>Connecting to backend server</p>
           </div>
         </div>
       </div>
