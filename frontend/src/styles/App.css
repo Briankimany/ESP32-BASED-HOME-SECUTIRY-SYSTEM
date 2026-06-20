@@ -1,0 +1,407 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.App {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Header Styles - OpenWrt Style */
+header {
+  background: #1a1a2e;
+  color: white;
+  padding: 20px 30px;
+  border-radius: 20px 20px 0 0;
+  margin-bottom: 0;
+}
+
+header h1 {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+header p {
+  font-size: 14px;
+  color: #a0a0a0;
+}
+
+.model-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #16213e;
+}
+
+.model {
+  font-size: 14px;
+  color: #e0e0e0;
+}
+
+.version {
+  font-size: 12px;
+  color: #4a9eff;
+  background: rgba(74, 158, 255, 0.1);
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+.connection-status {
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+.status-connected {
+  color: #00b894;
+}
+
+.status-disconnected {
+  color: #d63031;
+}
+
+/* Dashboard Grid Layout */
+.dashboard {
+  background: #f5f5f5;
+  padding: 30px;
+  border-radius: 0 0 20px 20px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 25px;
+}
+
+/* Panel Cards - OpenWrt Style */
+.panel {
+  background: white;
+  border-radius: 12px;
+  padding: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+
+.panel:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.panel h2 {
+  background: #f8f9fa;
+  padding: 15px 20px;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a2e;
+  border-bottom: 2px solid #4a9eff;
+}
+
+.panel-content {
+  padding: 20px;
+}
+
+/* Sensor Readings */
+.sensor-reading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.sensor-reading:last-child {
+  border-bottom: none;
+}
+
+.sensor-label {
+  font-weight: 500;
+  color: #666;
+  font-size: 14px;
+}
+
+.sensor-value {
+  font-size: 20px;
+  font-weight: bold;
+  color: #1a1a2e;
+  font-family: monospace;
+}
+
+.sensor-unit {
+  font-size: 12px;
+  color: #999;
+  font-weight: normal;
+}
+
+/* Status Indicators */
+.status-indicator {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.status-active {
+  background-color: #00b894;
+  animation: pulse 1.5s infinite;
+}
+
+.status-inactive {
+  background-color: #d63031;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Authorization Status */
+.authorization-status {
+  margin-top: 15px;
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.authorized {
+  background-color: #00b894;
+  color: white;
+}
+
+.unauthorized {
+  background-color: #d63031;
+  color: white;
+}
+
+/* Warning Alerts */
+.warning {
+  background-color: #ff7675;
+  color: white;
+  padding: 10px;
+  border-radius: 6px;
+  margin-top: 15px;
+  font-size: 13px;
+  text-align: center;
+  animation: shake 0.5s;
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+/* Video Container */
+.video-container {
+  background: #000;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  min-height: 300px;
+}
+
+.video-container img {
+  width: 100%;
+  display: block;
+}
+
+.video-placeholder {
+  background: #2c3e50;
+  color: white;
+  padding: 60px 20px;
+  text-align: center;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.video-placeholder p {
+  margin: 5px 0;
+}
+
+/* Loading and Error States */
+.loading-container,
+.error-container {
+  background: white;
+  border-radius: 12px;
+  padding: 40px;
+  text-align: center;
+  margin: 30px;
+}
+
+.loading-spinner {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #4a9eff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 15px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.error-container {
+  background: #fff5f5;
+  border-left: 4px solid #d63031;
+}
+
+.error-container button {
+  background: #4a9eff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  margin-top: 15px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.error-container button:hover {
+  background: #3182ce;
+}
+
+/* Troubleshooting Box */
+.troubleshooting-box {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 15px;
+  margin-top: 20px;
+  text-align: left;
+}
+
+.troubleshooting-box h3 {
+  font-size: 14px;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.troubleshooting-box ol {
+  margin-left: 20px;
+  font-size: 13px;
+  color: #666;
+}
+
+.troubleshooting-box li {
+  margin: 5px 0;
+}
+
+.troubleshooting-box code {
+  background: #e0e0e0;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
+
+  .dashboard {
+    padding: 15px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .sensor-value {
+    font-size: 16px;
+  }
+
+  header h1 {
+    font-size: 22px;
+  }
+}
+
+/* Small status badges */
+.status-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.badge-online {
+  background: #00b894;
+  color: white;
+}
+
+.badge-offline {
+  background: #d63031;
+  color: white;
+}
+
+/* Progress bars for sensors */
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: #e0e0e0;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 5px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #4a9eff;
+  border-radius: 3px;
+  transition: width 0.3s;
+}
+
+.progress-fill.high {
+  background: #ff7675;
+}
+
+.progress-fill.medium {
+  background: #fdcb6e;
+}

@@ -1,0 +1,68 @@
+###
+POST http://localhost:8080/api/verify/keypad
+Content-Type: application/json
+
+{
+    "code": "1234",
+    "type": "keypad"
+}
+
+###
+POST http://localhost:8080/api/sensors 
+ Content-Type: application/json
+ 
+  {
+    "temperature": 90,
+    "humidity": 60.0,
+    "pir": false,
+    "keypadCode": "1234",
+    "rfidTag": "A1B2C3D4",
+    "authorization": true
+  }
+
+###
+POST http://localhost:8080/api/sensors
+Content-Type: application/json
+
+{
+  "temperature": 26.5,
+  "humidity": 65,
+  "pir": true
+}
+
+###
+GET http://localhost:8080/api/sensors
+
+###
+POST http://localhost:8080/api/verify/keypad
+Content-Type: application/json
+
+{
+  "code": "1234"
+}
+
+###
+POST http://localhost:8080/api/verify/keypad
+Content-Type: application/json
+
+{
+  "code": "9999"
+}
+
+###
+POST http://localhost:8080/api/verify/rfid
+Content-Type: application/json
+
+{
+  "tag": "A1B2C3D4"
+}
+
+###
+POST http://localhost:8080/api/sensors
+Content-Type: application/json
+
+{
+  "temperature": 26.5,
+  "humidity": 65,
+  "pir": true
+}
