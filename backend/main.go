@@ -13,9 +13,20 @@ import (
 // CORS middleware
 func enableCORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		allowed := map[string]bool{
+			"http://localhost:5173":          true,
+			"https://air4life.mu.ac.ke:5173": true,
+			"http://air4life.mu.ac.ke:5173":  true,
+		}
 
-		// Always set headers FIRST
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		origin := r.Header.Get("Origin")
+
+		if allowed[origin] {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+		}
+
+		// // Always set headers FIRST
+		// w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
