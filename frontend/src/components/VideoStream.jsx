@@ -5,12 +5,14 @@ function VideoStream() {
   const [isStreaming, setIsStreaming] = useState(false);
 
   const [imageUrl, setImageUrl] = useState(
-    "http://air4life.mu.ac.ke/api/video/stream",
+    "http://air4life.mu.ac.ke:8080/api/video/stream",
   );
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setImageUrl(`http://air4life.mu.ac.ke/api/video/stream?t=${Date.now()}`);
+      setImageUrl(
+        `http://air4life.mu.ac.ke:8080/api/video/stream?t=${Date.now()}`,
+      );
     }, 1000);
 
     return () => clearInterval(interval);

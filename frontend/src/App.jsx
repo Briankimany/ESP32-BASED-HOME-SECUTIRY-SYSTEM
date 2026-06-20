@@ -39,7 +39,7 @@ function App() {
     } catch (err) {
       console.error("Server connection check failed:", err);
       setServerStatus("disconnected");
-      setError(`Cannot connect to backend at http://air4life.mu.ac.ke`);
+      setError(`Cannot connect to backend at http://air4life.mu.ac.ke:8080`);
       setLoading(false);
       return false;
     }
