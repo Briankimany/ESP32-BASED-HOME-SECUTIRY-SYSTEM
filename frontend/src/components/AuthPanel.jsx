@@ -20,19 +20,16 @@ function AuthPanel({ onAuthorizationResult }) {
     setMessage("");
 
     try {
-      const response = await fetch(
-        "http://air4life.mu.ac.ke:8080/api/verify/keypad",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            code: keypadInput,
-            type: "keypad",
-          }),
+      const response = await fetch("/api/verify/keypad", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({
+          code: keypadInput,
+          type: "keypad",
+        }),
+      });
 
       const result = await response.json();
 
@@ -69,19 +66,16 @@ function AuthPanel({ onAuthorizationResult }) {
 
     try {
       // Send to backend for verification
-      const response = await fetch(
-        "http://air4life.mu.ac.ke:8080/api/verify/rfid",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            tag: rfidInput,
-            type: "rfid",
-          }),
+      const response = await fetch("/api/verify/rfid", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({
+          tag: rfidInput,
+          type: "rfid",
+        }),
+      });
 
       const result = await response.json();
 

@@ -24,14 +24,11 @@ function App() {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 3000);
 
-      const response = await fetch(
-        "http://air4life.mu.ac.ke:8080/api/sensors",
-        {
-          signal: controller.signal,
-          method: "GET",
-          mode: "cors",
-        },
-      );
+      const response = await fetch("/api/sensors", {
+        signal: controller.signal,
+        method: "GET",
+        mode: "cors",
+      });
 
       clearTimeout(timeoutId);
       setServerStatus("connected");
@@ -47,7 +44,7 @@ function App() {
 
   const fetchSensorData = async () => {
     try {
-      const response = await fetch("http://air4life.mu.ac.ke:8080/api/sensors");
+      const response = await fetch("/api/sensors");
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
