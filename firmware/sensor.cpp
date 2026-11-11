@@ -14,29 +14,30 @@ void initOLED() {
 
 // Monitor the keypad for user's inputs.
 String getKeypadInputs(String& enteredPassword){
-  char key = getKeyPress();
+  // char key = getKeyPress();
 
-  if (key != NO_KEY) {
-    Serial.print("Key pressed: ");
-    Serial.println(key);
+  // if (key != NO_KEY) {
+  //   Serial.print("Key pressed: ");
+  //   Serial.println(key);
     
-    if (key == '#') {
-      // verify the current password.
-      return enteredPassword;
+  //   if (key == '#') {
+  //     // verify the current password.
+  //     return enteredPassword;
 
-    } else if (key == '*') {
-      // Clear password
-      enteredPassword = "";
-      return "";
+  //   } else if (key == '*') {
+  //     // Clear password
+  //     enteredPassword = "";
+  //     return "";
 
-    } else {
-      // Add digit to password
-      enteredPassword += key;
-      Serial.print("Current password input: ");
-      Serial.println(enteredPassword);
-      return "WAIT";
-    }
-  }
+  //   } else {
+  //     // Add digit to password
+  //     enteredPassword += key;
+  //     Serial.print("Current password input: ");
+  //     Serial.println(enteredPassword);
+  //     return "WAIT";
+  //   }
+  // }
+  // return "WAIT";
   return "WAIT";
 }
 

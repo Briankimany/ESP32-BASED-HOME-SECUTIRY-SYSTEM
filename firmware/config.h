@@ -4,10 +4,10 @@
 
 #define PIR_PIN       36
 #define LED_PIN       13
-
+#define BUZZER_PIN    04
 // OLED
 #define SCREEN_WIDTH   128
-#define SCREEN_HEIGHT  64
+#define SCREEN_HEIGHT  32
 
 // ADC
 #define VOLTAGE_RESOLUTION 3.3
